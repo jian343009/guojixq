@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+    <class name="data.Device" table="Device">
+        <id name="id" column="id" type="java.lang.Integer">
+            <generator class="native" />
+        </id>
+       
+        <property name="imei" type="java.lang.String">
+            <column name="imei" default="''"></column>
+        </property>
+         <property name="enter" type="java.lang.String"/>
+         <property name="firstTime" type="java.lang.String"/>
+         <property name="lastDay"   type="java.lang.Integer"/>
+         <property name="lastTime"	type="java.lang.String"/>
+         <property name="openState"	type="java.lang.Integer"/>
+         <property name="buyState"	type="java.lang.Integer"/>
+         <property name="open"   type="java.lang.Integer"/>
+         <property name="buy"   type="java.lang.Integer"/>
+         <property name="offbuy"   type="java.lang.Integer"/>
+         <property name="token" type="java.lang.String"/>
+         <property name="unlocky" type="java.lang.Integer">
+         	<column name="unlockey" default="0"></column>
+         </property>
+         <property name="regChannel" type="java.lang.String">
+             <column name="regChannel" length="60000"></column>
+         </property>
+         <property name="channel" type="java.lang.String">
+             <column name="channel" default="''"></column>
+         </property>
+         <property name="version" type="java.lang.String">
+             <column name="version" default="''"></column>
+         </property>
+         <property name="extra" type="java.lang.String">
+             <column name="extra" length="60000"></column>
+         </property>
+         
+    </class>
+</hibernate-mapping>
+
