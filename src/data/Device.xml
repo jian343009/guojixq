@@ -36,6 +36,9 @@
          <property name="extra" type="java.lang.String">
              <column name="extra" length="60000"></column>
          </property>
+         <property name="reward" type="java.lang.String">
+             <column name="reward" default="''"></column>
+         </property>
          
     </class>
 </hibernate-mapping>

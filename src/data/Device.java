@@ -1,5 +1,6 @@
 package data;
 
+import dao.Data;
 import main.Global;
 
 public class Device {
@@ -21,6 +22,14 @@ public class Device {
 	private String extra = "";
 	private String token="";
 	private int unlocky=0;
+	private String reward="";//配置文件已改
+	private Data rewardData=null;
+	public String getReward() {
+		return reward;
+	}
+	public void setReward(String reward) {
+		this.reward = reward;
+	}
 	public String getToken() {
 		return token;
 	}
@@ -126,6 +135,11 @@ public class Device {
 		this.extra = extra;
 	}
 	
+	public Data getRewardData() {
+		if(rewardData==null) {
+			rewardData=Data.fromMap(this.reward);
+		}	return rewardData;
+	}
 	public int getUnlockNum(int lesson){
 		return Global.getInt(Global.getArrayValue(this.extra, lesson));
 	}

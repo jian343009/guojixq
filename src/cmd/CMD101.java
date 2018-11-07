@@ -1,17 +1,13 @@
 package cmd;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.logging.Logger;
-
-import main.Global;
-import main.ServerTimer;
 
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
 
-import dao.Dao;
-import data.*;
+import data.Device;
+import data.StepCount;
+import main.Global;
 
 public class CMD101 implements ICMD {
 	private final Logger log = Logger.getLogger("CMD101");

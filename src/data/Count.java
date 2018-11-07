@@ -1,9 +1,5 @@
 package data;
 
-import java.util.Arrays;
-import java.util.List;
-
-import dao.Dao;
 import dao.Data;
 import main.Global;
 
@@ -25,7 +21,15 @@ public class Count {
 	private String detail = "";
 	private String dataStr = "";
 	private Data data =null;
+	private String reward="";//配置文件已改
+	private Data rewardData=null;
 	
+	public String getReward() {
+		return reward;
+	}
+	public void setReward(String reward) {
+		this.reward = reward;
+	}
 	public int getId() {
 		return id;
 	}
@@ -116,11 +120,17 @@ public class Count {
 	public void setDataStr(String dataStr) {
 		this.dataStr = dataStr;
 	}
+	
+	//功能方法
 	public Data getData(){
 		if(data == null){
 			data = Data.fromMap(dataStr);
-		}
-		return data;		
+		}	return data;		
+	}
+	public Data getRewardData() {
+		if(rewardData==null) {
+			rewardData=Data.fromMap(reward);
+		}	return rewardData;
 	}
 	public void addReturnNum(int day) {
 		int[] nums = Global.getArray(Global.splitArray(this.detail), 4);

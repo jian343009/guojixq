@@ -21,7 +21,7 @@
              <column name="param" default="''"></column>
          </property>
          <property name="used"  type="java.lang.Integer"/>
-         <property name="money" type="java.lang.Intege">
+         <property name="money" type="java.lang.Integer">
 			<column name="money" default="0"></column>         
          </property>
          
