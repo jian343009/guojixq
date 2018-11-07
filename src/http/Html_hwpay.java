@@ -91,7 +91,7 @@ public class Html_hwpay extends Html {
 				money = Global.getDouble(map.get("amount"));
 				pay.setMoney((int)money);
 			}
-			Device wd = Dao.getDeviceExist(deviceID);log.info("device:"+wd);
+			Device wd = Dao.getDeviceExist(deviceID,"");log.info("device:"+wd);
 			if(wd != null && money > 0 && before == null && result.equals("0")){
 				pay.setUserName(wd.getImei());
 				

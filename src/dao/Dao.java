@@ -39,32 +39,7 @@ public class Dao {
 		ss.close();
 		return list;
 	}
-	public static List<BaseData> getAllBaseData(){
-		Session ss = HSF.getSession();
-		List<BaseData> list = ss.createCriteria(BaseData.class).list();
-		ss.close();
-		return list;
-	}
-	public static BaseData getBaseDataByName(String name){
-		BaseData bd = null;
-		Session ss = HSF.getSession();
-		List<BaseData> list = ss.createCriteria(BaseData.class).add(Restrictions.eq("name", name)).list();
-		ss.close();
-		if(list.size() >0){
-			bd = list.get(0);
-		}
-		return bd;
-	}
-	public static BaseData getBaseDataById(int id){
-		BaseData bd = null;
-		Session ss = HSF.getSession();
-		List<BaseData> list = ss.createCriteria(BaseData.class).add(Restrictions.eq("id", id)).list();
-		ss.close();
-		if(list.size() >0){
-			bd = list.get(0);
-		}
-		return bd;
-	}
+
 	@SuppressWarnings("unchecked")
 	public static ChannelEveryday getChannelEverydayToday(String channel){
 		ChannelEveryday ce = null;
@@ -306,15 +281,25 @@ public class Dao {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public static Device getDeviceExist(int id)
+	public static Device getDeviceExist(int id,String imei)
 	{
-		Device device = dicIdDevice.get(id);
-		if(device == null){
+		Device device=null;
+		if(dicIdDevice.containsKey(id)) {
+			device=dicIdDevice.get(id);
+		}else if(dicImeiDevice.containsKey(imei)) {
+			device=dicImeiDevice.get(imei);
+		}else {
 			Session ss = HSF.getSession();
-			List<Device> list = ss.createCriteria(Device.class).add(Restrictions.eq("id", id)).setMaxResults(1).list();
+			Criteria cr=ss.createCriteria(Device.class);
+			if(id>1) {
+				cr.add(Restrictions.eq("id", id));
+			}
+			if(!Global.isEmpty(imei)) {
+				cr.add(Restrictions.eq("imei", imei));
+			}
+			List<Device> list = cr.setMaxResults(1).list();
 			ss.close();
-			if(list.size() >0)
-			{
+			if(list.size() >0){
 				device = list.get(0);
 				Dao.addDevice(device);
 			}
@@ -428,17 +413,16 @@ public class Dao {
 		   }
 	   }
 	public static Device getDeviceByToken(String token) {
+		if(Global.isEmpty(token)) {
+			return null;
+		}//只须查找缓存中的数据就可以了
 		Device device=null;
-		if(token!=null && !token.isEmpty()){
-			Session session=HSF.getSession();
-			List<Device> list=session.createCriteria(Device.class).add(Restrictions.eq("token",token)).setMaxResults(1).list();
-			session.close();
-			if(list.size()>0){
-				device=list.get(0);
-				log.info("device = "+device+"----------------------");
-				Dao.addDevice(device);
+		for(Device dev:listDevice) {
+			if(token.equals(dev.getToken())) {
+				device=dev;break;
 			}
 		}
 		return device;
+		
 	} 
 }

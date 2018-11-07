@@ -396,4 +396,7 @@ public final class Global{
 	public static int getRandom(int min, int max){
 		return (int) (Math.random()*(max - min) + min);
 	}
+	public static boolean isEmpty(String str){
+		return (str==null||str.isEmpty())?true:false;
+	}
 }

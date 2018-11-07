@@ -71,7 +71,7 @@ public class Html_letvpay extends Html{
 				pay.setMoney((int)money);
 			}
 			Record record = Global.addRecord(deviceID, "", "html_letvpay", "乐视支付回调");
-			Device wd = Dao.getDeviceExist(deviceID);
+			Device wd = Dao.getDeviceExist(deviceID,null);
 			log.info("wd:"+wd+",money:"+money+",before:"+before+",sign:"+sign.equals(signBefore));
 			if(wd != null && money > 0 && before == null && sign.equals(signBefore)){
 				pay.setUserName(wd.getImei());

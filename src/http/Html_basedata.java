@@ -46,7 +46,7 @@ public class Html_basedata extends Html {
 				       "</tr>"+
 				     "</thead>"+
 				     "<tbody>";
-			List<BaseData> list = Dao.getAllBaseData();
+			List<BaseData> list = BaseData.getAllBaseData();
 			for(int m=0;m<list.size();m++){
 				BaseData bd = list.get(m);
 				body +=
@@ -75,7 +75,7 @@ public class Html_basedata extends Html {
 			String[] conts = content.split("&");
 			int id = Global.getInt(conts[0].split("=")[1]);
 			
-			BaseData br = Dao.getBaseDataById(id);
+			BaseData br = BaseData.getByID(id);
 			if(id ==0 && conts.length >1 && conts[1].startsWith("name=")){
 				String name = conts[1].replace("name=", "");
 				BaseData bd = BaseData.getByName(name);

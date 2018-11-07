@@ -65,7 +65,7 @@ public class Html_wxpay extends Html {
 					channel = params[3].split("#")[0];
 				}
 				pay.setChannel(channel);
-				Device wd = Dao.getDeviceExist(deviceID);log.info("device:"+wd);
+				Device wd = Dao.getDeviceExist(deviceID,null);log.info("device:"+wd);
 				if(wd != null && money > 0 && before == null && verify(map)){
 					pay.setUserName(wd.getImei());
 					

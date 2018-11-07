@@ -28,115 +28,84 @@ public class CMD10 implements ICMD {
 	@Override
 	public ChannelBuffer getBytes(int cmd, ChannelBuffer data) {
 		String name = Global.readUTF(data);
-		String content = "";
-		BaseData bd = Dao.getBaseDataByName(name);
-		if (bd != null) {
-			content = bd.getContent();
-			if ("配置信息".equals(name)) {
-				content = this.getXMLcontent(content, data);
-			}
+		String content = BaseData.getContent(name);
+		if ( "配置信息".equals(name) && !Global.isEmpty(content)) {
+			content = this.getXMLcontent(content, data);
 		}
 		ChannelBuffer buf = ChannelBuffers.dynamicBuffer();
 		buf.writeShort(cmd);
 		buf.writeBytes(Global.getUTF(content));
 		return buf;
 	}
-
+	/**
+	 * 课程加密
+	 */
 	private String getXMLcontent(String content, ChannelBuffer data) {
-		if (content == null || content.isEmpty()) {
-			return "";
+		Device device = null;
+		if (data.readable()) {
+			String imei = Global.readUTF(data);log.info(imei);
+			device = Dao.getDeviceExist(0,imei);//不允许cmd10创建新用户
 		}
 		Document doc = Global.xmlParser(content);// 解析content为可读文档
-		String token = "";
-		int unlocky = 0;
-		Device device = null;
-		if (data.readableBytes() > 2) {
-			String imei = Global.readUTF(data);
-			log.info("imei = " + imei + "---------------------------imei");
-			if (imei.length() > 0) {				
-				device = Dao.getDevice(0, imei, "CMD10");
-			}
+		if(doc==null) {
+			return "baseData未成功解析成document文件";
 		}
+		String token = "";	int unlocky = 0;
 		if (device != null) {
-			if (device.getToken() == null || device.getToken().isEmpty()) {
-				token = Global.md5(device.getId() + device.getImei() + device.getFirstTime() + Math.random());
-				device.setToken(token);
-			} else {// 这是有token的情况
-				token = device.getToken();
-			}
+			if (Global.isEmpty(device.getToken())) {
+				device.setToken(Global.md5(device.getId() + device.getImei() 
+				+ device.getFirstTime() + Math.random()));
+			} 
+			token = device.getToken();
 			unlocky = Global.getRandom(99999);
 			device.setUnlocky(unlocky);
+			log.info("token=" + token + ",unlocky=" + unlocky+",device="+device.getId());
 			Dao.save(device);// 保存
-			log.info("这是有imei的情况----token = " + token + "----unlocky = " + unlocky);
 		} else {
 			token = Global.md5(ServerTimer.getFullWithS() + Math.random());
-			unlocky = this.getUnlockyByToken(token);
-			if(doc!=null){
-			this.changeXMLChannel(doc, token);
-			log.info("这是无imei的情况----token = " + token + "----unlocky = " + unlocky);
+			unlocky = getUnlockyByToken(token);
+			NodeList channels = doc.getElementsByTagName("channel").item(0).getChildNodes();
+			for (int i = 0; i < channels.getLength(); i++) {
+				if (channels.item(i).getNodeType() == Node.ELEMENT_NODE) {
+					Element e = (Element) channels.item(i);
+					e.setAttribute("info",(e.getAttribute("info") + "#" + token));
+				}
 			}
-			
-		}
-		return this.changeXMLCode(doc, token, unlocky);
-	}
-
-	private String changeXMLCode(Document doc, String token, int unlocky) {
-		if (doc == null) {
-			return "";
+			log.info("token=" + token + ",unlocky=" + unlocky+",device=null");
 		}
 		NodeList lessons = doc.getElementsByTagName("lesson");
 		for (int i = 0; i < lessons.getLength(); i++) {
 			Element e = (Element) lessons.item(i);
 			int lesson = Global.getInt(e.getAttribute("id"));
 			e.setAttribute("code", "" + next(unlocky, lesson));
-			String urlValue = this.changeUrl("url", token, lesson, e);
+			this.changeUrl("url", token, lesson, e);
 			this.changeUrl("urlHW", token, lesson, e);
-			this.changeUrl("urlTV", token, lesson, e);
+			//this.changeUrl("urlTV", token, lesson, e);
 		}
-		String outxml = null;
 		try {// Document 转回 String
-			outxml = this.docmentToString(doc);
+			TransformerFactory factory = TransformerFactory.newInstance();
+			Transformer tf = factory.newTransformer();
+			tf.setOutputProperty("encoding", "utf8");
+			ByteArrayOutputStream bos = new ByteArrayOutputStream();
+			tf.transform(new DOMSource(doc), new StreamResult(bos));
+			return bos.toString();
 		} catch (TransformerException e) {
 			log.info("xml回写出错：" + e.getMessage());
+			return "xml回写出错";
 		}
-		return outxml;
 	}
 
-	// 改文档的channel信息
-	private void changeXMLChannel(Document doc, String token) {		
-		NodeList channels = doc.getElementsByTagName("channel").item(0).getChildNodes();
-		for (int i = 0; i < channels.getLength(); i++) {
-			if (channels.item(i).getNodeType() == Node.ELEMENT_NODE) {
-				Element e = (Element) channels.item(i);
-				String Channelname = e.getAttribute("info") + "#" + token;
-				e.setAttribute("info", Channelname);
-			}
-		}		
-	}
-
-	private String changeUrl(String url, String token, int lesson, Element e) {
+	private void changeUrl(String url, String token, int lesson, Element e) {
 		String urlValue = e.getAttribute(url);
 		if (urlValue != null && urlValue.contains("/")) {
 			int cut = urlValue.lastIndexOf('/');
-			urlValue = urlValue.substring(0, cut) + "/down.php?token=" + token + "&lesson=" + lesson;
+			urlValue = urlValue.substring(0, cut) + "/down2.php?token=" + token + "&lesson=" + lesson;
 			e.setAttribute(url, urlValue);// 关键执行步骤
 		}
-		return urlValue;
-
 	}
-
-	public String docmentToString(Document doc) throws TransformerException {
-		if(doc==null){
-			return "";
-		}
-		TransformerFactory factory = TransformerFactory.newInstance();
-		Transformer tf = factory.newTransformer();
-		tf.setOutputProperty("encoding", "utf8");
-		ByteArrayOutputStream bos = new ByteArrayOutputStream();
-		tf.transform(new DOMSource(doc), new StreamResult(bos));
-		return bos.toString();
-	}
-
+	/**
+	 *  单课解锁码算法
+	 */
 	public static int next(int code, int count) {
 		for (int i = 0; i < count; i++) {
 			code ^= (code << 20);
@@ -146,13 +115,16 @@ public class CMD10 implements ICMD {
 		code = 0xFFFF & code + code >> 16;
 		return code;
 	}
-
+	/**
+	 *    无imei的用户匹配解锁码
+	 */
 	public static int getUnlockyByToken(String token) {
+		if (Global.isEmpty(token)) {
+			return 0;
+		}	
 		int code = 0;
-		if (token != null && !token.isEmpty()) {
-			for (int i = 0; i < token.length(); i++) {
-				code += token.charAt(i) << (i % 5);
-			}
+		for (int i = 0; i < token.length(); i++) {
+			code += token.charAt(i) << (i % 5);
 		}
 		return code;
 	}

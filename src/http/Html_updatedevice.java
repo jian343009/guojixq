@@ -17,7 +17,7 @@ public class Html_updatedevice extends Html {
 		
 		String[] params = content.split("&");
 		int id = Global.getInt(params[0].split("=")[1]);
-		Device device = Dao.getDeviceExist(id);
+		Device device = Dao.getDeviceExist(id,null);
 		if(device != null){
 			for(int m=1;m<params.length;m++){
 				String[] kv = params[m].split("=");

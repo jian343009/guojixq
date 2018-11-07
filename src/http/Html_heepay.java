@@ -60,7 +60,7 @@ public class Html_heepay implements IHtml{
 				money = Global.getDouble(map.get("pay_amt"));
 				pay.setMoney((int)money);
 			}
-			Device wd = Dao.getDeviceExist(deviceID);
+			Device wd = Dao.getDeviceExist(deviceID,"");
 			if(wd != null && money > 0 && before == null && result.equals("1") && sign.equals(map.get("sign"))){
 				pay.setUserName(wd.getImei());
 				
