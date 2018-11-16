@@ -1,5 +1,6 @@
 package http;
 
+import java.util.Calendar;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.logging.Logger;
@@ -11,6 +12,7 @@ import dao.Data;
 import data.*;
 
 import main.Global;
+import main.ServerTimer;
 
 
 public class Html_rate implements IHtml {
@@ -19,13 +21,13 @@ public class Html_rate implements IHtml {
 	@Override
 	public String getHtml(String content) {
 		
-		String tr="";
+		StringBuffer 每日渠道=new StringBuffer();
 		List<ChannelEveryday> list = Dao.getChannelEverydayByChannel(content);
 		for(int m=0;m<list.size();m++){
 			ChannelEveryday ce = list.get(m);
-			tr += "<tr>" +
+			每日渠道.append("<tr>" +
 					"<td>"+ce.getChannel()+"</td>" +
-					"<td>"+ce.getDayStr()+"</td>" +
+					"<td>"+simpleDate(ce.getDayStr())+"</td>" +
 					"<td>"+ce.getOpen()+"</td>" +
 					"<td>"+ce.getNewDevice()+"</td>" +
 					"<td>"+ce.getReturnNum(1)+"("+(ce.getYesterday()==0 ? 0 : ce.getReturnNum(1)*100/ce.getYesterday())+"%)</td>" +
@@ -39,12 +41,12 @@ public class Html_rate implements IHtml {
 					"<td>"+ce.getApplePay()+"</td>" +
 					"<td>"+ce.getHwPay()+"</td>" +
 					"<td>"+ce.getWiiPay()+"</td>" +
-					"</tr>";
+					"</tr>");
 		}
 		
 		String html = "";
 		if(!content.isEmpty()){
-			html = tr;
+			html = 每日渠道.toString();
 		}else{
 			String body =
 					"<script>" +
@@ -62,59 +64,73 @@ public class Html_rate implements IHtml {
 							"<table data-role=\"table\" id='t1' data-mode=\"columntoggle\" class=\"ui-responsive table-stroke\" border='1' >" +
 								"<thead>" +
 									"<tr>" +
-										"<th>渠道</th>" +
-										"<th data-priority=\"2\">时间</th>" +
-										"<th data-priority=\"3\">打开设备</th>" +
-										"<th data-priority=\"4\">新增设备</th>" +
-										"<th data-priority=\"4\">次日返回</th>" +
-										"<th data-priority=\"4\">2~6返回</th>" +
-										"<th data-priority=\"4\">7~返回</th>" +
-										"<th data-priority=\"5\">支付次数</th>" +
-										"<th data-priority=\"6\">新增支付次数</th>" +
-										"<th>支付金额</th>" +
-										"<th data-priority=\"8\">支付宝</th>" +
-										"<th data-priority=\"9\">微信支付</th>" +
-										"<th data-priority=\"9\">苹果支付</th>" +
-										"<th data-priority=\"9\">华为支付</th>" +
-										"<th data-priority=\"9\">其他支付</th>" +
+										"<th><br>渠道</th>" +
+										"<th data-priority=\"2\">记录<br>时间</th>" +
+										"<th data-priority=\"1\">打开<br>设备</th>" +
+										"<th data-priority=\"4\">新增<br>设备</th>" +
+										"<th data-priority=\"4\">次日<br>返回</th>" +
+										"<th data-priority=\"4\">2~6<br>返回</th>" +
+										"<th data-priority=\"4\">7~<br>返回</th>" +
+										"<th data-priority=\"3\">支付<br>次数</th>" +
+										"<th data-priority=\"3\">新增<br>支付</th>" +
+										"<th>支付<br>金额</th>" +
+										"<th data-priority=\"5\">支付<br>宝</th>" +
+										"<th data-priority=\"5\">微信<br>支付</th>" +
+										"<th data-priority=\"5\">苹果<br>支付</th>" +
+										"<th data-priority=\"6\">华为<br>支付</th>" +
+										"<th data-priority=\"6\">其他<br>支付</th>" +
 									"</tr>"+
 								"</thead>" +
 								"<tbody id='detail'>" + 
-									tr + 
+									每日渠道.toString() + 
 								"</tbody>" +
 							"</table>" +
 						"</div>" +
 					"</div>";
 			
-			String tr2 = "";
+			//String tr2 = "";
+			StringBuffer 每日记录=new StringBuffer(),红包=new StringBuffer();
 			List<Count> list2 = Dao.getAllDayCount();
 			for(int m=0;m<list2.size()-1;m++){
 				Count count = list2.get(m);
 				Count next = list2.get(m+1);				
-				int Open = 0;int[] daysOpen = {1,2,4,8,15};
-				for(int i:daysOpen){				
-					Open += count.getData().get("返回").get(i).get("共计").asInt()
-						-count.getData().get("返回").get(i).get("详细").get("其他版本").asInt();
-				}
-				int NewDevice =  count.getData().get("返回").get(0).get("共计").asInt()
-						-count.getData().get("返回").get(0).get("详细").get("其他版本").asInt();
-				Data data = count.getData().get("支付");
-				tr2 += "<tr>" +
-						"<td>"+count.getDayStr()+"</td>" +
-						"<td>"+count.getOpen()+"<br>7版本："+Open+"</td>" +
-						"<td>"+count.getNewDevice()+"<br>7版本："+NewDevice+"</td>" +
+				
+				String[] weeks = {"没有","周日","周一","周二","周三","周四","周五","周六"};
+				String week =weeks[ServerTimer.getCalendarFromString(
+				        	count.getDayStr()).get(Calendar.DAY_OF_WEEK)];
+				String 日期=simpleDate(count.getDayStr())+","+week;
+				每日记录.append( "<tr>" +
+						"<td>"+日期+"</td>" +
+						"<td>"+count.getOpen()+"</td>" +
+						"<td>"+count.getNewDevice()+"</td>" +
 						"<td>"+count.getReturnNum(1)+"("+(next.getNewDevice() == 0 ? 0 : count.getReturnNum(1)*100/next.getNewDevice())+"%)</td>" +
 						"<td>"+count.getReturnNum(2)+"</td>" +
 						"<td>"+count.getReturnNum(7)+"</td>" +
-						"<td>"+count.getPay()+show_奇偶(data.get("总计次数"))+"</td>"+
+						"<td>"+count.getPay()+"</td>"+
 						"<td>"+count.getNewPay()+"</td>" +
-						"<td>"+count.getTotalPay()+show_奇偶(data.get("总计金额"))+"</td>" +
-						"<td>"+count.getAliPay()+show_奇偶(data.get("详细金额").get("支付宝"))+"</td>" +
-						"<td>"+count.getWxPay()+show_奇偶(data.get("详细金额").get("微信支付"))+"</td>" +
-						"<td>"+count.getApplePay()+show_奇偶(data.get("详细金额").get("苹果支付"))+"</td>" +
-						"<td>"+count.getHwPay()+show_奇偶(data.get("详细金额").get("华为支付"))+"</td>" +
-						"<td>"+count.getWiiPay()+show_奇偶(data.get("详细金额").get("其它支付"))+"</td>" +
-						"</tr>";
+						"<td>"+count.getTotalPay()+"</td>" +
+						"<td>"+count.getAliPay()+"</td>" +
+						"<td>"+count.getWxPay()+"</td>" +
+						"<td>"+count.getApplePay()+"</td>" +
+						"<td>"+count.getHwPay()+"</td>" +
+						"<td>"+count.getWiiPay()+"</td>" +
+						"</tr>");
+				Data creat=count.getRewardData().get("红包生成");
+				Data used=count.getRewardData().get("红包使用");
+				红包.append("<tr>" +
+						"<td>"+日期+"</td>" +
+						"<td>"+creat.get(1).get("次数").asInt()+"</td>" +
+						"<td>"+creat.get(1).get("金额").asInt()+"</td>" +
+						"<td>"+creat.get(2).get("次数").asInt()+"</td>" +
+						"<td>"+creat.get(2).get("金额").asInt()+"</td>" +
+						"<td>"+used.get("总次数").asInt()+"</td>" +
+						"<td>"+used.get("总金额").asInt()+"</td>" +
+						"<td>"+used.get("单课次数").asInt()+"</td>" +
+						"<td>"+used.get("单课金额").asInt()+"</td>" +
+						"<td>"+used.get("多课次数").asInt()+"</td>" +
+						"<td>"+used.get("多课金额").asInt()+"</td>" +
+						"</tr>"
+						);
 			}
 			
 			body +=
@@ -124,34 +140,34 @@ public class Html_rate implements IHtml {
 						"<table data-role=\"table\" id='t2' data-mode=\"columntoggle\" class=\"ui-responsive table-stroke\" border='1' >" +
 							"<thead>" +
 								"<tr>" +
-									"<th>时间</th>" +
-									"<th data-priority=\"3\">打开设备</th>" +
-									"<th data-priority=\"4\">新增设备</th>" +
-									"<th data-priority=\"4\">次日返回</th>" +
-									"<th data-priority=\"4\">2~6返回</th>" +
-									"<th data-priority=\"4\">7~返回</th>" +
-									"<th data-priority=\"5\">支付次数</th>" +
-									"<th data-priority=\"6\">新增支付次数</th>" +
-									"<th>支付金额</th>" +
-									"<th data-priority=\"8\">支付宝</th>" +
-									"<th data-priority=\"9\">微信支付</th>" +
-									"<th data-priority=\"9\">苹果支付</th>" +
-									"<th data-priority=\"9\">华为支付</th>" +
-									"<th data-priority=\"9\">其他支付</th>" +
+									"<th>记录<br>时间</th>" +
+									"<th data-priority=\"1\">打开<br>设备</th>" +
+									"<th data-priority=\"1\">新增<br>设备</th>" +
+									"<th data-priority=\"3\">次日<br>返回</th>" +
+									"<th data-priority=\"4\">2~6<br>返回</th>" +
+									"<th data-priority=\"4\">7~<br>返回</th>" +
+									"<th data-priority=\"3\">支付<br>次数</th>" +
+									"<th data-priority=\"3\">新增<br>支付</th>" +
+									"<th>支付<br>金额</th>" +
+									"<th data-priority=\"5\"><br>支付宝</th>" +
+									"<th data-priority=\"5\">微信<br>支付</th>" +
+									"<th data-priority=\"5\">苹果<br>支付</th>" +
+									"<th data-priority=\"6\">华为<br>支付</th>" +
+									"<th data-priority=\"6\">其他<br>支付</th>" +
 								"</tr>"+
 							"</thead>" +
 							"<tbody>" + 
-								tr2 + 
+								每日记录.toString() + 
 							"</tbody>" +
 						"</table>" +
 					"</div>" +
 				"</div>";
 			
-			tr2 = "";
+			StringBuffer 每月记录=new StringBuffer();
 			list2 = Dao.getAllMonthCount();
 			for(int m=0;m<list2.size();m++){
 				Count count = list2.get(m);
-				tr2 += "<tr>" +
+				每月记录.append("<tr>" +
 						"<td>"+count.getDayStr()+"</td>" +
 						"<td>"+count.getOpen()+"</td>" +
 						"<td>"+count.getNewDevice()+"</td>" +
@@ -163,7 +179,7 @@ public class Html_rate implements IHtml {
 						"<td>"+count.getApplePay()+"</td>" +
 						"<td>"+count.getHwPay()+"</td>" +
 						"<td>"+count.getWiiPay()+"</td>" +
-						"</tr>";
+						"</tr>");
 			}
 			
 			body +=
@@ -173,36 +189,66 @@ public class Html_rate implements IHtml {
 						"<table data-role=\"table\" id='t2' data-mode=\"columntoggle\" class=\"ui-responsive table-stroke\" border='1' >" +
 							"<thead>" +
 								"<tr>" +
-									"<th>时间</th>" +
-									"<th data-priority=\"3\">打开设备</th>" +
-									"<th data-priority=\"4\">新增设备</th>" +
-									"<th data-priority=\"5\">支付次数</th>" +
-									"<th data-priority=\"6\">新增支付次数</th>" +
-									"<th>支付金额</th>" +
-									"<th data-priority=\"8\">支付宝</th>" +
-									"<th data-priority=\"9\">微信支付</th>" +
-									"<th data-priority=\"9\">苹果支付</th>" +
-									"<th data-priority=\"9\">华为支付</th>" +
-									"<th data-priority=\"9\">其他支付</th>" +
+									"<th><br>时间</th>" +
+									"<th data-priority=\"1\">打开<br>设备</th>" +
+									"<th data-priority=\"2\">新增<br>设备</th>" +
+									"<th data-priority=\"2\">支付<br>次数</th>" +
+									"<th data-priority=\"3\">新增<br>支付</th>" +
+									"<th>支付<br>金额</th>" +
+									"<th data-priority=\"5\"><br>支付宝</th>" +
+									"<th data-priority=\"5\">微信<br>支付</th>" +
+									"<th data-priority=\"5\">苹果<br>支付</th>" +
+									"<th data-priority=\"5\">华为<br>支付</th>" +
+									"<th data-priority=\"6\">其他<br>支付</th>" +
 								"</tr>"+
 							"</thead>" +
 							"<tbody>" + 
-								tr2 + 
+								每月记录.toString() + 
 							"</tbody>" +
 						"</table>" +
 					"</div>" +
+				"</div>";
+			body+="<div align=\"center\" data-role=\"collapsible\">\n"+
+					"<h3 align=\"center\">红包统计</h3>\n" +
+					"<div>\n" +
+						"<table data-role=\"table\" id='reward' data-mode=\"columntoggle\" class=\"ui-responsive table-stroke\" border='1' >\n" +
+							"<thead>\n" +
+								"<tr>\n" +
+									"<th rowspan=\"2\" ><br>时间</th>\n" + 
+									"<th colspan=\"2\" data-priority=\"1\" style=\"text-align:center;\" >第一课</th>\n" +
+									"<th colspan=\"2\" data-priority=\"1\" style=\"text-align:center;\" >第二课</th>\n" +
+									"<th colspan=\"2\" data-priority=\"1\" style=\"text-align:center;\" >红包使用</th>\n" +
+									"<th colspan=\"2\" data-priority=\"1\" style=\"text-align:center;\" >单课使用</th>\n" +
+									"<th colspan=\"2\" data-priority=\"1\" style=\"text-align:center;\" >多课使用</th>\n" +
+								"</tr>\n"+
+								"<tr>\n" +
+									"<th>次数</th>\n" +
+									"<th>金额</th>\n" +
+									"<th>次数</th>\n" +
+									"<th>金额</th>\n" +
+									"<th>总次数</th>\n" +//总计
+									"<th>总金额</th>\n" +
+									"<th>单课次数</th>\n" +//单课
+									"<th>单课金额</th>\n" +
+									"<th>多课次数</th>\n" +//多课
+									"<th>多课金额</th>\n" +
+								"</tr>\n"+
+							"</thead>\n" +
+							"<tbody>\n" + 
+								红包.toString() + 
+							"</tbody>\n" +
+						"</table>" +
+					"</div>\n" +
 				"</div>";
 			html = Http.getHtml(body);
 		}
 
 		return html;
 	}
-	
-	private String show_奇偶(Data data){
-		StringBuilder sb =new StringBuilder();
-		sb.append("<br>奇：").append(data.get("1").asString())
-		.append("<br>偶：").append(data.get("0").asString());
-		return sb.toString();
+	private String simpleDate(String dayStr) {
+		if(!Global.isEmpty(dayStr)&&dayStr.length()>6) {
+			return dayStr.substring(5);
+		}
+		return "";
 	}
-
 }

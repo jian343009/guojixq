@@ -8,12 +8,16 @@ import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
 
+import dao.Data;
 import dao.HSF;
+import main.Global;
 
 public class BaseData {
 	
 	public static final String 强制全部解锁 = "强制全部解锁";
 	public static final String 微信网页支付地址 = "微信网页支付地址";
+	public static final String 可用支付方式="可用支付方式";
+	//public static final int total=2097148;
 	
 	
 	private int id;
@@ -42,16 +46,19 @@ public class BaseData {
 	/*
 	 * baseData的基本查询及操作方法
 	 */
+	//baseData后台管理查询
 	public static List<BaseData> getAllBaseData(){
 		bdMap.clear();
 		return getList(null, null);
 	}
+	//baseData后台修改方法
 	public static BaseData getByID(int id) {
 		for(BaseData bd:getAllBaseData()) {
 			if(bd.getId()==id) { return bd; }
 		}
 		return null;
 	}
+	//baseData后台修改方法
 	public static BaseData getByName(String name){
 		BaseData bd = bdMap.get(name);
 		if(bd != null) { return bd;	}
@@ -67,17 +74,30 @@ public class BaseData {
 			return getByName(name).getContent();
 		}return null;
 	}
+	
+	/*
+	 * 根查询方法
+	 */
 	private static List<BaseData> getList(String name,String content){
 		Session ss = HSF.getSession();
 		Criteria c=ss.createCriteria(BaseData.class);
-		if(name!=null) {
+		if(!Global.isEmpty(name)) {
 			c.add(Restrictions.eq(name, content));
 		}
 		List<BaseData> list = c.list();
 		ss.close();
 		return list;
 	}
+	public static Data getPriceData(String channel) {
+		Data priceData=priceDataMap.get(channel);
+		if(priceData==null) {
+			priceData=Data.fromMap(BaseData.getContent(channel));
+		}
+		return priceData;
+	}
+	
 	/*  baseData缓存map  */
 	private static final Map<String, BaseData> bdMap=new HashMap<String, BaseData>();
+	private static final Map<String,Data> priceDataMap=new HashMap<String, Data>();
 	
 }

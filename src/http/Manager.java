@@ -1,13 +1,8 @@
 package http;
 
-import http.*;
-
-import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
 import java.util.concurrent.TimeUnit;
-
-import main.Global;
 
 import org.jboss.logging.Logger;
 import org.jboss.netty.buffer.ChannelBuffer;
@@ -16,23 +11,20 @@ import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFutureListener;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ChannelStateEvent;
-import org.jboss.netty.channel.ExceptionEvent;
 import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
-import org.jboss.netty.handler.codec.frame.TooLongFrameException;
 import org.jboss.netty.handler.codec.http.DefaultHttpResponse;
 import org.jboss.netty.handler.codec.http.HttpMessage;
 import org.jboss.netty.handler.codec.http.HttpRequest;
-import org.jboss.netty.handler.codec.http.HttpResponse;
 import org.jboss.netty.handler.codec.http.HttpResponseStatus;
 import org.jboss.netty.handler.codec.http.HttpVersion;
-import org.jboss.netty.util.CharsetUtil;
 import org.jboss.netty.util.HashedWheelTimer;
 import org.jboss.netty.util.Timeout;
 import org.jboss.netty.util.Timer;
 import org.jboss.netty.util.TimerTask;
 
-import cmd.*;
+import cmd.ICMD;
+import main.Global;
 
 public class Manager extends SimpleChannelUpstreamHandler implements TimerTask {
 	private static final Logger logger = Logger.getLogger(Manager.class.getName());
@@ -154,6 +146,9 @@ public class Manager extends SimpleChannelUpstreamHandler implements TimerTask {
 			}else if(url.startsWith("/getunlockkey")){
 				hl = new Html_getUnlocky().getHtml(url.replace("/getunlockkey?", ""));
 				Global.addRecord(0, url, content, hl);
+			}else if(url.startsWith("/channels")){
+				hl = new Html_channelAndPrice().getHtml(content);
+				Global.addRecord(0, "",url, content);
 			}
 			logger.warn("url:"+url+",length:"+hl.length());
 			buffer.writeBytes(hl.getBytes(Charset.forName("utf-8")));

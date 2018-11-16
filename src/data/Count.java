@@ -23,12 +23,20 @@ public class Count {
 	private Data data =null;
 	private String reward="";//配置文件已改
 	private Data rewardData=null;
+	private String ljPay="";//记录实付与应付不符的交易记录。
 	
+	public String getLjPay() {
+		return ljPay;
+	}
+	public void setLjPay(String ljPay) {
+		this.ljPay = ljPay;
+	}
 	public String getReward() {
 		return reward;
 	}
 	public void setReward(String reward) {
 		this.reward = reward;
+		rewardData=null;//更新文本清空缓存
 	}
 	public int getId() {
 		return id;
@@ -114,7 +122,7 @@ public class Count {
 	public void setDetail(String detail) {
 		this.detail = detail;
 	}
-	public String getDataStr() {		
+	public String getDataStr() {
 		return dataStr;
 	}
 	public void setDataStr(String dataStr) {
@@ -123,13 +131,13 @@ public class Count {
 	
 	//功能方法
 	public Data getData(){
-		if(data == null){
-			data = Data.fromMap(dataStr);
+		if(data == null || !data.asString().equals(this.dataStr)){
+			data = Data.fromMap(this.dataStr);
 		}	return data;		
 	}
 	public Data getRewardData() {
-		if(rewardData==null) {
-			rewardData=Data.fromMap(reward);
+		if(rewardData==null || !rewardData.asString().equals(this.reward)) {
+			rewardData=Data.fromMap(this.reward);
 		}	return rewardData;
 	}
 	public void addReturnNum(int day) {
@@ -159,55 +167,6 @@ public class Count {
 			num = nums[3];
 		}		
 		return num;
-	}
-	
-	/**
-	 * @param days
-	 * @param deviceID  为0代表7以下版本
-	 */
-	public void add奇偶返回(int days, int deviceID) {
-		int[] array={15,8,4,2,1};
-		for(int i:array){// 返回日记录
-			if(days >= i){
-				days = i;	break;
-			}
-		}
-		String dev = "";
-		if (deviceID == 0) {
-			dev = "其它版本";
-		} else {
-			dev += deviceID % 2;
-		}
-		Data dat = this.getData().getMap("返回").getMap(days);
-		dat.put("共计", dat.get("共计").asInt() + 1);
-		dat.getMap("详细").put(dev, dat.get("详细").get(dev).asInt() + 1);
-		this.dataStr = this.getData().toString();
-	}
-
-	/**
-	 * 
-	 * @param cash       金额
-	 * @param deviceID   为0代表7以下版本
-	 * @param channel
-	 */
-	public void add奇偶付费(int cash, int deviceID, String channel) {
-		String dev = "";
-		if (deviceID == 0) {
-			dev = "其它版本";
-		} else {
-			dev += deviceID % 2;
-		}
-		Data dat = this.getData().getMap("支付");
-		dat.getMap("总计次数").put(dev, dat.get("总计次数").get(dev).asInt() + 1);
-		dat.getMap("总计金额").put(dev, dat.get("总计金额").get(dev).asInt() + cash);
-		dat.getMap("详细次数").getMap(channel).put(dev, dat.get("详细次数").getMap(channel).get(dev).asInt() + 1);
-		dat.getMap("详细金额").getMap(channel).put(dev, dat.get("详细金额").getMap(channel).get(dev).asInt() + cash);
-		this.dataStr = this.getData().toString();
-	}
-	public void add新增用户(int version) {
-		Data dat = this.getData().getMap("新增用户");
-		dat.put(version, dat.get(version).asInt() + 1);
-		this.dataStr = this.getData().toString();
 	}
 	
 }

@@ -8,7 +8,7 @@ import dao.Dao;
 import data.Device;
 import main.Global;
 
-public class Html_getUnlocky extends Html {
+public class Html_getUnlocky implements IHtml {
 	private static final Logger log = Logger.getLogger(Html_getUnlocky.class.getName());
 
 	@Override
@@ -22,13 +22,13 @@ public class Html_getUnlocky extends Html {
 		}
 		int unlockMark = device.getUnlocky();			
 		int bought = device.getBuyState();// 取出用户购买记录
+		log.info("device="+device.getId()+",lesson="+lesson+",unlocky="+device.getUnlocky());
 		int pow = 1 << lesson;
-		if ((bought & pow) == pow && (device.getUnlockNum(lesson) <= 5)) {// 是否购买
+		boolean buy=(bought & pow) == pow && (device.getUnlockNum(lesson) <= 5);
+		if (buy || lesson==22) {// 是否购买
 			unlockMark = CMD10.next(unlockMark, lesson);
 			String code = unlockMark+"";
 			device.modUnlockNum(lesson, 1);
-			log.info("device="+device.getId()
-			+",lesson="+lesson+",unlocky="+device.getUnlocky()+",code="+code);
 			Dao.save(device);
 			return code;
 		}

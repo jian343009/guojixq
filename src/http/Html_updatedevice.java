@@ -8,7 +8,7 @@ import main.*;
 import dao.*;
 import data.*;
 
-public class Html_updatedevice extends Html {
+public class Html_updatedevice implements IHtml {
 	private static final Logger log = Logger.getLogger(Html_updatedevice.class.getName());
 
 	@Override
@@ -17,7 +17,7 @@ public class Html_updatedevice extends Html {
 		
 		String[] params = content.split("&");
 		int id = Global.getInt(params[0].split("=")[1]);
-		Device device = Dao.getDeviceExist(id,null);
+		Device device = Dao.getDeviceExist(id,"imei==null");
 		if(device != null){
 			for(int m=1;m<params.length;m++){
 				String[] kv = params[m].split("=");

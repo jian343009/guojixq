@@ -239,35 +239,47 @@ public class Dao {
 		}
 		return product;
 	}
+	//此方法用于editdevice类中，注意缓存同步问题
 	public static List<Device> getDevice(int id, String imei, int start, int num){
 		Session ss = HSF.getSession();
 		Criteria ct = ss.createCriteria(Device.class);
-		if(id >0){
+		if(id >0){	
 			ct.add(Restrictions.eq("id", id));
-		}
+			}
 		if(!imei.isEmpty()){
 			ct.add(Restrictions.like("imei", imei));
-		}
+			}
 		ct.setFirstResult(start);
 		ct.setMaxResults(num);
 		List<Device> list = ct.list();
 		ss.close();
+		//同步缓存中的device
+		Device exist=getDeviceExist(id, imei);
+		if(exist!=null) {
+			for(Device d:list) {
+				if(d.getId()==exist.getId()||exist.getImei().equals(d.getImei())) {
+					list.remove(d);
+					list.add(exist);
+				}
+			}
+		}
 		return list;
 	}
 	private static Hashtable<Integer, Device> dicIdDevice = new Hashtable<Integer, Device>();
 	private static Hashtable<String, Device> dicImeiDevice = new Hashtable<String, Device>();
 	private static ArrayList<Device> listDevice = new ArrayList<Device>();
 	private static void addDevice(Device device){
-		if(device != null){
-			synchronized (listDevice) {
-				dicIdDevice.put(device.getId(), device);
-				dicImeiDevice.put(device.getImei(), device);
-				listDevice.add(device);
-				if(listDevice.size() >1000){
-					Device wd = listDevice.get(0);
-					dicIdDevice.remove(wd.getId());
-					dicImeiDevice.remove(wd.getImei());
-				}
+		if(device==null||listDevice.contains(device)) {
+			return;
+		}
+		synchronized (listDevice) {
+			dicIdDevice.put(device.getId(), device);
+			dicImeiDevice.put(device.getImei(), device);
+			listDevice.add(device);
+			if(listDevice.size() >1000){
+				Device wd = listDevice.get(0);
+				dicIdDevice.remove(wd.getId());
+				dicImeiDevice.remove(wd.getImei());
 			}
 		}
 	}
@@ -280,21 +292,25 @@ public class Dao {
 		}
 	}
 	
+	//查找数据库中已存在的device，不会新创建数据
 	@SuppressWarnings("unchecked")
-	public static Device getDeviceExist(int id,String imei)
-	{
+	public static Device getDeviceExist(int id,String imei)	{
+		if(id<1 && Global.isEmpty(imei)) {
+			return null;//解决id和imei同时空的情况
+		}
 		Device device=null;
-		if(dicIdDevice.containsKey(id)) {
+		if(id>1 && dicIdDevice.containsKey(id)) {
 			device=dicIdDevice.get(id);
-		}else if(dicImeiDevice.containsKey(imei)) {
+			orderDevice(device);
+		}else if(!Global.isEmpty(imei) && dicImeiDevice.containsKey(imei)) {
 			device=dicImeiDevice.get(imei);
+			orderDevice(device);
 		}else {
 			Session ss = HSF.getSession();
 			Criteria cr=ss.createCriteria(Device.class);
 			if(id>1) {
 				cr.add(Restrictions.eq("id", id));
-			}
-			if(!Global.isEmpty(imei)) {
+			}else if(!Global.isEmpty(imei)) {
 				cr.add(Restrictions.eq("imei", imei));
 			}
 			List<Device> list = cr.setMaxResults(1).list();
@@ -309,42 +325,7 @@ public class Dao {
 	@SuppressWarnings("unchecked")
 	public synchronized static Device getDevice(int id, String imei, String enter)
 	{
-		Device device = null;
-		if(id > 0){
-			device = dicIdDevice.get(id);
-			if(device == null){
-				Session ss = HSF.getSession();
-				List<Device> list = ss.createCriteria(Device.class).add(Restrictions.eq("id", id)).setMaxResults(1).list();
-				ss.close();
-				if(list.size() >0)
-				{
-					device = list.get(0);
-					Dao.addDevice(device);
-				}
-			}else{
-				Dao.orderDevice(device);
-			}
-		}else if(!imei.isEmpty()){
-			device = dicImeiDevice.get(imei);
-			if(device == null){
-				Session ss = HSF.getSession();
-				List<Device> list = ss.createCriteria(Device.class).add(Restrictions.eq("imei", imei)).setMaxResults(1).list();
-				ss.close();
-				if(list.size() >0)
-				{
-					device = list.get(0);
-				}else{
-					device = new Device();
-					device.setImei(imei);
-					device.setEnter(enter);
-					device.setFirstTime(ServerTimer.getFull());
-					Dao.save(device);
-				}
-				Dao.addDevice(device);
-			}else{
-				Dao.orderDevice(device);
-			}
-		}
+		Device device = Dao.getDeviceExist(id, imei);
 		if(device == null){
 			device = new Device();
 			device.setEnter(enter);

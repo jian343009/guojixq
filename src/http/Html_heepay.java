@@ -78,24 +78,16 @@ public class Html_heepay implements IHtml{
 				mc.setTotalPay(mc.getTotalPay() + money);
 				count.setTotalPay(count.getTotalPay() + money);
 				ce.setTotalPay(ce.getTotalPay() + money);
+				//价格比对+红包使用
+				Device.checkPrice(wd, lesson, (int)money, pay.getId());
 				if(map.get("pay_type").equals("30")){
 					mc.setWxPay(mc.getWxPay() + money);
 					count.setWxPay(count.getWxPay() + money);
 					ce.setWxPay(ce.getWxPay() + money);
-					if(Global.getInt(wd.getVersion()) >= 7){
-						count.add奇偶付费((int)money, wd.getId(), "微信支付");
-					}else{
-						count.add奇偶付费((int)money, 0, "微信支付");
-					}
 				}else{
 					mc.setWiiPay(mc.getWiiPay() + money);
 					count.setWiiPay(count.getWiiPay() + money);
 					ce.setWiiPay(ce.getWiiPay() + money);
-					if(Global.getInt(wd.getVersion()) >= 7){
-						count.add奇偶付费((int)money, wd.getId(), "其他支付");
-					}else{
-						count.add奇偶付费((int)money, 0, "其他支付");
-					}
 				}
 				Dao.save(mc);
 				Dao.save(count);

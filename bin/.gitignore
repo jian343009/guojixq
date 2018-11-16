@@ -1,9 +1,3 @@
-/.DS_Store
-/Test.class
 /cmd/
-/dao/
 /data/
-/hibernate.cfg.xml
 /http/
-/json/
-/main/

@@ -6,6 +6,7 @@ public class Cmap {
 	public static final int _10获取配置信息 = 10;
 	public static final int _11微信支付 = 11;
 	public static final int _13获取红包 = 13;
+	public static final int _14获取价格 =14;
 	
 	public static final int _100启动应用 = 100;
 	

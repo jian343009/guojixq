@@ -111,11 +111,8 @@ public class Html_hwpay extends Html {
 				Dao.save(mc);
 				count.setTotalPay(count.getTotalPay() + money);
 				count.setHwPay(count.getHwPay() + money);
-				if(Global.getInt(wd.getVersion()) >= 7){
-					count.add奇偶付费((int)money, wd.getId(), "华为支付");
-				}else{
-					count.add奇偶付费((int)money, 0, "华为支付");
-				}
+				//价格比对+红包使用
+				Device.checkPrice(wd, lesson, (int)money, pay.getId());
 				Dao.save(count);
 				ce.setTotalPay(ce.getTotalPay() + money);
 				ce.setHwPay(ce.getHwPay() + money);
