@@ -86,7 +86,9 @@ public class Html_wxpay extends Html {
 					count.setTotalPay(count.getTotalPay() + money);
 					count.setWxPay(count.getWxPay() + money);
 					//价格比对+红包使用
-					Device.checkPrice(wd, lesson, money, pay.getId());
+					Device.checkPrice(wd, lesson, money);
+					//AB测试支付记录
+					Device.recordABpay(wd, (int)money, count, lesson);
 					Dao.save(count);
 					ce.setTotalPay(ce.getTotalPay() + money);
 					ce.setWxPay(ce.getWxPay() + money);

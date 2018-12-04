@@ -15,7 +15,7 @@ public class Html_channelAndPrice implements IHtml{
 		String 渠道们 = "";
 		log.info(content);
 		if(content.isEmpty()){
-			for(String cha:new String[]{"华为平台","苹果平台","乐视电视","其它平台"}){
+			for(String cha:new String[]{"华为平台","苹果平台","乐视电视","其它平台","oppo联运"}){
 				String 内容 = "";
 				Data data = BaseData.getPriceData(cha);//data做了缓存
 				//{价格:{1:12,2:13,,,,折扣:95},内容:{1:"",2"",,,,}}
@@ -45,6 +45,7 @@ public class Html_channelAndPrice implements IHtml{
 					+ "<thead>"
 						+ "<tr>"
 							+ "<th width=\"45px\">课程</th>\n"
+						
 							+ "<th width=\"45px\">价格</th>\n"
 							+ "<th width=\"80%\">支付说明</th>\n"
 						+ "</tr>"
@@ -108,6 +109,7 @@ public class Html_channelAndPrice implements IHtml{
 					+ "<div><h1><span id=\"head\"></span>支付信息管理</h1></div>\n"
 					+ "<div data-role=\"controlgroup\" data-type=\"horizontal\" data-mini='true' >\n"
 						+"\t<a id=\"hwpt\" but=\"\" href=\"#\" data-role=\"button\" onclick=\"cut(id,'华为平台');\">华为平台</a>\n"
+						+"\t<a id=\"oppt\" but=\"\" href=\"#\" data-role=\"button\" onclick=\"cut(id,'oppo联运');\">oppo联运</a>\n"
 						+"\t<a id=\"pgpt\" but=\"\" href=\"#\" data-role=\"button\" onclick=\"cut(id,'苹果平台');\">苹果平台</a>\n"
 						+"\t<a id=\"lspt\" but=\"\" href=\"#\" data-role=\"button\" onclick=\"cut(id,'乐视电视');\">乐视电视</a>\n"
 						+"\t<a id=\"qtpt\" but=\"\" href=\"#\" data-role=\"button\" onclick=\"cut(id,'其它平台');\">其它平台</a>\n"

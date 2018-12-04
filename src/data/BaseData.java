@@ -48,7 +48,8 @@ public class BaseData {
 	 */
 	//baseData后台管理查询
 	public static List<BaseData> getAllBaseData(){
-		bdMap.clear();
+		bdMap.clear();//改basedata时清空缓存
+		priceDataMap.clear();//改basedata时清空缓存
 		return getList(null, null);
 	}
 	//baseData后台修改方法
@@ -72,7 +73,7 @@ public class BaseData {
 	public static String getContent(String name){
 		if(getByName(name) != null){
 			return getByName(name).getContent();
-		}return null;
+		}return "";
 	}
 	
 	/*
@@ -92,6 +93,7 @@ public class BaseData {
 		Data priceData=priceDataMap.get(channel);
 		if(priceData==null) {
 			priceData=Data.fromMap(BaseData.getContent(channel));
+			priceDataMap.put(channel, priceData);
 		}
 		return priceData;
 	}

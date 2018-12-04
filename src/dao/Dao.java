@@ -331,7 +331,8 @@ public class Dao {
 			device.setEnter(enter);
 			device.setFirstTime(ServerTimer.getFull());
 			Dao.save(device);
-			device.setImei("device"+device.getId());
+			imei=Global.isEmpty(imei)?"device"+device.getId():imei;
+			device.setImei(imei);
 			Dao.save(device);
 			Dao.addDevice(device);
 		}

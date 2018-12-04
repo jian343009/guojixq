@@ -108,7 +108,11 @@ public class Html_editdevice implements IHtml {
 						String idStr = argName+device.getId();
 						String value=String.valueOf(fd.get(device));
 						if("reward".equals(argName)) {
-							value=fd.get(device).toString().replaceAll("\"", "&quot;");
+							if(Global.isEmpty(value)) {
+								value="";
+							}else {
+								value=fd.get(device).toString().replaceAll("\"", "&quot;");
+							}
 						}
 						body += "<tr><td>"+arg+"</td><td><input type=\"text\" data-clear-btn=\"false\" id=\""
 						+idStr+"\" value=\""+value+"\" onchange=\"$('#btn"+idStr

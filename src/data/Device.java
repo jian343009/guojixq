@@ -6,6 +6,7 @@ import cmd.CMD14;
 import dao.Dao;
 import dao.Data;
 import main.Global;
+import main.ServerTimer;
 
 public class Device {
 	
@@ -157,12 +158,17 @@ public class Device {
 		return this.id+"#"+this.imei;
 	}
 	//比对价格和使用红包
-	public static void checkPrice(Device device,int lesson,int money,int ljpayID) {
+	public static void checkPrice(Device device,int lesson,int money) {
 		if(device==null||Global.getInt(device.getVersion())<4) {//版本控制
 			return;
 		}
+		if(!CMD14.canUseReward(device, lesson)) {
+			return;
+		}
 		Count count=Dao.getCountToday();
-		if(money==CMD14.getPrice(device, lesson)) {
+		int 应付款 = CMD14.getPrice(device, lesson)-CMD14.可用红包额(device, lesson);
+		应付款 = (应付款<=0)?1:应付款;
+		if(money==应付款) {
 			int 红包=CMD14.可用红包额(device, lesson);
 			if(红包>=1) {
 				Data rewardData=device.getRewardData();
@@ -188,9 +194,31 @@ public class Device {
 				Dao.save(count);
 			}
 		}else {
-			count.setLjPay(count.getLjPay()+ljpayID+"#");
+			count.setLjPay(count.getLjPay()+ServerTimer.getFullWithS()+"#");
 		}
 	}
+	public static void recordABpay(Device device,int money,Count count,int lesson) {
+		if(device==null ||Global.getInt(device.getVersion())<4) {
+			return;
+		}
+		Data abPay=Data.fromMap(count.getAbPay());
+		int AB=device.getId()%2;//区分奇偶
+		abPay.getMap(AB)
+			.put("次数", abPay.get(AB).get("次数").asInt()+1)
+			.put("金额",abPay.get(AB).get("金额").asInt()+money);
+		if(lesson==0) {
+			Data data=abPay.getMap(AB).getMap("多课");
+			data.put("次数", data.get("次数").asInt()+1);
+			data.put("金额",data.get("金额").asInt()+money);
+		}else {
+			Data data=abPay.getMap(AB).getMap("单课");
+			data.put("次数", data.get("次数").asInt()+1);
+			data.put("金额",data.get("金额").asInt()+money);
+		}
+		count.setAbPay(abPay.asString());
+		Dao.save(count);
+	}
+	
 	public static boolean isBuyAll(int buyState) {
 		for(int i=2;i<=20;i++) {
 			int pow=1<<i;

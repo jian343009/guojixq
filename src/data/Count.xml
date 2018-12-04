@@ -26,6 +26,10 @@
 		<property name="hwPay" type="java.lang.Double">
 		    <column name="hwPay" default="0"></column>
 		</property>
+		<property name="oppoPay" type="java.lang.Double">
+		    <column name="oppoPay" default="0"></column>
+		</property>
+		
 		<property name="detail" type="java.lang.String">
 		    <column name="detail" default="''"></column>
 		</property>
@@ -34,6 +38,9 @@
 		</property>
 		<property name="reward" type="java.lang.String">
 			<column name="reward" default="''"></column>
+		</property>
+		<property name="abPay" type="java.lang.String">
+			<column name="abPay" default="''"></column>
 		</property>
     </class>
 </hibernate-mapping>

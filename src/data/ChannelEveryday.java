@@ -18,6 +18,7 @@ public class ChannelEveryday {
 	private double wxPay = 0;
 	private double applePay = 0;
 	private double hwPay = 0;
+	private double oppoPay=0;//oppo联运支付
 	private int yesterday = 0;
 	private String detail = "";
 	
@@ -104,6 +105,12 @@ public class ChannelEveryday {
 	}
 	public void setHwPay(double hwPay) {
 		this.hwPay = hwPay;
+	}
+	public double getOppoPay() {
+		return oppoPay;
+	}
+	public void setOppoPay(double oppoPay) {
+		this.oppoPay = oppoPay;
 	}
 	public int getYesterday() {
 		return yesterday;

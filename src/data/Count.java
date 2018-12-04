@@ -18,13 +18,21 @@ public class Count {
 	private double wxPay = 0;
 	private double applePay = 0;
 	private double hwPay = 0;
+	private double oppoPay=0;//oppo联运支付
 	private String detail = "";
 	private String dataStr = "";
 	private Data data =null;
 	private String reward="";//配置文件已改
 	private Data rewardData=null;
 	private String ljPay="";//记录实付与应付不符的交易记录。
+	private String abPay="";//用于AB测试记录区别数据
 	
+	public String getAbPay() {
+		return abPay;
+	}
+	public void setAbPay(String abPay) {
+		this.abPay = abPay;
+	}
 	public String getLjPay() {
 		return ljPay;
 	}
@@ -115,6 +123,12 @@ public class Count {
 	}
 	public void setHwPay(double hwPay) {
 		this.hwPay = hwPay;
+	}
+	public double getOppoPay() {
+		return oppoPay;
+	}
+	public void setOppoPay(double oppoPay) {
+		this.oppoPay = oppoPay;
 	}
 	public String getDetail() {
 		return detail;

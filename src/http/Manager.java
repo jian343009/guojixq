@@ -140,6 +140,10 @@ public class Manager extends SimpleChannelUpstreamHandler implements TimerTask {
 				hl = new Html_hwpay().getHtml(content);
 				type = "application/json; charset=UTF-8";
 				Global.addRecord(0, url, content, hl);
+			}else if(url.equals("/oppopay")) {//oppo联运支付
+				hl = new Html_opposign().getHtml(content);
+				type = "application/json; charset=UTF-8";
+				Global.addRecord(0, url, content, hl);
 			}else if(url.equals("/wxpay")){
 				hl = new Html_wxpay().getHtml(content);
 				Global.addRecord(0, url, content, hl);

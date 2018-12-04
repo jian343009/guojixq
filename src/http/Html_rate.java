@@ -5,6 +5,7 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.logging.Logger;
 
+import cmd.CMD13;
 import net.sf.json.JSONArray;
 
 import dao.Dao;
@@ -40,6 +41,7 @@ public class Html_rate implements IHtml {
 					"<td>"+ce.getWxPay()+"</td>" +
 					"<td>"+ce.getApplePay()+"</td>" +
 					"<td>"+ce.getHwPay()+"</td>" +
+					"<td>"+ce.getOppoPay()+"</td>" +
 					"<td>"+ce.getWiiPay()+"</td>" +
 					"</tr>");
 		}
@@ -48,7 +50,7 @@ public class Html_rate implements IHtml {
 		if(!content.isEmpty()){
 			html = 每日渠道.toString();
 		}else{
-			String body =
+			String body ="<style type=\"text/css\">table,th,td,tr{	border:1px solid #888888;}</style>"+//表格边框
 					"<script>" +
 						"function update(){" +
 							"var name = $('#channelName').val();" +
@@ -78,6 +80,7 @@ public class Html_rate implements IHtml {
 										"<th data-priority=\"5\">微信<br>支付</th>" +
 										"<th data-priority=\"5\">苹果<br>支付</th>" +
 										"<th data-priority=\"6\">华为<br>支付</th>" +
+										"<th data-priority=\"6\">oppo<br>支付</th>" +
 										"<th data-priority=\"6\">其他<br>支付</th>" +
 									"</tr>"+
 								"</thead>" +
@@ -89,7 +92,15 @@ public class Html_rate implements IHtml {
 					"</div>";
 			
 			//String tr2 = "";
-			StringBuffer 每日记录=new StringBuffer(),红包=new StringBuffer();
+			StringBuffer 每日记录=new StringBuffer(),
+					红包=new StringBuffer(),
+					ab测=new StringBuffer();
+			String typeA=switchType(CMD13.getRewardSwitch(1).get("type").asString());
+			String typeB=switchType(CMD13.getRewardSwitch(0).get("type").asString());
+			String buyTypeA=switchBuyType(CMD13.getRewardSwitch(1).get("buyType").asString());
+			String buyTypeB=switchBuyType(CMD13.getRewardSwitch(0).get("buyType").asString());
+			String abTest="A-奇数：生成="+typeA+",使用="+buyTypeA+";B-偶数：生成="+typeB+",使用="+buyTypeB;
+			
 			List<Count> list2 = Dao.getAllDayCount();
 			for(int m=0;m<list2.size()-1;m++){
 				Count count = list2.get(m);
@@ -113,24 +124,47 @@ public class Html_rate implements IHtml {
 						"<td>"+count.getWxPay()+"</td>" +
 						"<td>"+count.getApplePay()+"</td>" +
 						"<td>"+count.getHwPay()+"</td>" +
+						"<td>"+count.getOppoPay()+"</td>" +
 						"<td>"+count.getWiiPay()+"</td>" +
 						"</tr>");
-				Data creat=count.getRewardData().get("红包生成");
-				Data used=count.getRewardData().get("红包使用");
-				红包.append("<tr>" +
-						"<td>"+日期+"</td>" +
-						"<td>"+creat.get(1).get("次数").asInt()+"</td>" +
-						"<td>"+creat.get(1).get("金额").asInt()+"</td>" +
-						"<td>"+creat.get(2).get("次数").asInt()+"</td>" +
-						"<td>"+creat.get(2).get("金额").asInt()+"</td>" +
-						"<td>"+used.get("总次数").asInt()+"</td>" +
-						"<td>"+used.get("总金额").asInt()+"</td>" +
-						"<td>"+used.get("单课次数").asInt()+"</td>" +
-						"<td>"+used.get("单课金额").asInt()+"</td>" +
-						"<td>"+used.get("多课次数").asInt()+"</td>" +
-						"<td>"+used.get("多课金额").asInt()+"</td>" +
-						"</tr>"
-						);
+				if(!Global.isEmpty(count.getReward())) {
+					Data creat=count.getRewardData().get("红包生成");
+					Data used=count.getRewardData().get("红包使用");
+					红包.append("<tr>" +
+							"<td>"+日期+"</td>" +
+							"<td>"+count.getRewardData().get("新增用户").asInt()+"</td>" +
+							"<td>"+creat.get(1).get("次数").asInt()+"</td>" +
+							"<td>"+creat.get(1).get("金额").asInt()+"</td>" +
+							"<td>"+creat.get(2).get("次数").asInt()+"</td>" +
+							"<td>"+creat.get(2).get("金额").asInt()+"</td>" +
+							"<td>"+used.get("总次数").asInt()+"</td>" +
+							"<td>"+used.get("总金额").asInt()+"</td>" +
+							"<td>"+used.get("单课次数").asInt()+"</td>" +
+							"<td>"+used.get("单课金额").asInt()+"</td>" +
+							"<td>"+used.get("多课次数").asInt()+"</td>" +
+							"<td>"+used.get("多课金额").asInt()+"</td>" +
+							"</tr>"
+							);
+				}
+				
+				if(!Global.isEmpty(count.getAbPay())) {
+					Data abData=Data.fromMap(count.getAbPay());
+					ab测.append("<tr>" +
+							"<td>"+日期+"</td>" +
+							"<td>"+count.getTotalPay()+"</td>" +
+							"<td>"+(abData.get(0).get("金额").asInt()+abData.get(1).get("金额").asInt())+"</td>" +
+							"<td>"+(abData.get(0).get("次数").asInt()+abData.get(1).get("次数").asInt())+"</td>" +
+							"<td>"+abData.get(1).get("单课").get("次数").asInt()+"</td>" +
+							"<td>"+abData.get(1).get("单课").get("金额").asInt()+"</td>" +
+							"<td>"+abData.get(1).get("多课").get("次数").asInt()+"</td>" +
+							"<td>"+abData.get(1).get("多课").get("金额").asInt()+"</td>" +
+							"<td>"+abData.get(0).get("单课").get("次数").asInt()+"</td>" +
+							"<td>"+abData.get(0).get("单课").get("金额").asInt()+"</td>" +
+							"<td>"+abData.get(0).get("多课").get("次数").asInt()+"</td>" +
+							"<td>"+abData.get(0).get("多课").get("金额").asInt()+"</td>" +
+							"</tr>"
+							);
+				}
 			}
 			
 			body +=
@@ -153,6 +187,7 @@ public class Html_rate implements IHtml {
 									"<th data-priority=\"5\">微信<br>支付</th>" +
 									"<th data-priority=\"5\">苹果<br>支付</th>" +
 									"<th data-priority=\"6\">华为<br>支付</th>" +
+									"<th data-priority=\"6\">oppo<br>支付</th>" +
 									"<th data-priority=\"6\">其他<br>支付</th>" +
 								"</tr>"+
 							"</thead>" +
@@ -215,6 +250,7 @@ public class Html_rate implements IHtml {
 							"<thead>\n" +
 								"<tr>\n" +
 									"<th rowspan=\"2\" ><br>时间</th>\n" + 
+									"<th rowspan=\"2\" >可获取红包<br>新增用户</th>\n" + 
 									"<th colspan=\"2\" data-priority=\"1\" style=\"text-align:center;\" >第一课</th>\n" +
 									"<th colspan=\"2\" data-priority=\"1\" style=\"text-align:center;\" >第二课</th>\n" +
 									"<th colspan=\"2\" data-priority=\"1\" style=\"text-align:center;\" >红包使用</th>\n" +
@@ -240,6 +276,39 @@ public class Html_rate implements IHtml {
 						"</table>" +
 					"</div>\n" +
 				"</div>";
+			body+="<div align=\"center\" data-role=\"collapsible\">\n"+
+					"<h3 align=\"center\">"+abTest+"</h3>\n" +
+					"<div>\n" +
+						"<table data-role=\"table\" id='ABtest' data-mode=\"columntoggle\" class=\"ui-responsive table-stroke\" border='1' >\n" +
+							"<thead>\n" +
+								"<tr>\n" +
+									"<th rowspan=\"2\" ><br>时间</th>\n" + 
+									"<th rowspan=\"2\" >所有版本<br>总支付额</th>\n" + 
+									"<th colspan=\"2\" >观察版本总支付</th>\n" + 
+									"<th colspan=\"2\" data-priority=\"1\" style=\"text-align:center;\" >A(奇数用户单课支付)</th>\n" +
+									"<th colspan=\"2\" data-priority=\"1\" style=\"text-align:center;\" >A(奇数用户多课支付)</th>\n" +
+									"<th colspan=\"2\" data-priority=\"1\" style=\"text-align:center;\" >B(偶数用户单课支付)</th>\n" +
+									"<th colspan=\"2\" data-priority=\"1\" style=\"text-align:center;\" >B(偶数用户多课支付)</th>\n" +
+								"</tr>\n"+
+								"<tr>\n" +
+									"<th>金额</th>\n" +//观察版本
+									"<th>次数</th>\n" +//观察版本
+									"<th>次数</th>\n" +//A(奇数用户单课支付)
+									"<th>金额</th>\n" +//A(奇数用户单课支付)
+									"<th>次数</th>\n" +//A(奇数用户多课支付)
+									"<th>金额</th>\n" +//A(奇数用户多课支付)
+									"<th>次数</th>\n" +//B(偶数用户单课支付)
+									"<th>金额</th>\n" +//B(偶数用户单课支付)
+									"<th>次数</th>\n" +//B(偶数用户多课支付)
+									"<th>金额</th>\n" +//B(偶数用户多课支付)
+								"</tr>\n"+
+							"</thead>\n" +
+							"<tbody>\n" + 
+								ab测.toString() + 
+							"</tbody>\n" +
+						"</table>" +
+					"</div>\n" +
+				"</div>";
 			html = Http.getHtml(body);
 		}
 
@@ -250,5 +319,31 @@ public class Html_rate implements IHtml {
 			return dayStr.substring(5);
 		}
 		return "";
+	}
+	private String switchType(String type) {
+		String str="";
+		if("0".equals(type)) {
+			str="通用";
+		}else if("1".equals(type)) {
+			str="仅第1课";
+		}else if("2".equals(type)) {
+			str="仅第2课";
+		}else if("3".equals(type)) {
+			str="关闭";
+		}else {
+			str="值错误";
+		}
+		return str;
+	}
+	private String switchBuyType(String buyType){
+		String str="";
+		if("0".equals(buyType)) {
+			str="通用";
+		}else if("1".equals(buyType)) {
+			str="多课";
+		}else {
+			str="值错误";
+		}
+		return str;
 	}
 }

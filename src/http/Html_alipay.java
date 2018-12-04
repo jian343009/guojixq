@@ -92,7 +92,9 @@ public class Html_alipay implements IHtml {
 				count.setTotalPay(count.getTotalPay() + money);
 				count.setAliPay(count.getAliPay() + money);
 				//价格比对+红包使用
-				Device.checkPrice(wd, lesson, (int)money, pay.getId());
+				Device.checkPrice(wd, lesson, (int)money);
+				//AB测试支付记录
+				Device.recordABpay(wd, (int)money, count, lesson);
 				Dao.save(count);
 				ce.setTotalPay(ce.getTotalPay() + money);
 				ce.setAliPay(ce.getAliPay() + money);

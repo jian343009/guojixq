@@ -3,11 +3,14 @@ package cmd;
 import main.Global;
 import main.ServerTimer;
 
+import java.util.Arrays;
+
 import org.jboss.logging.Logger;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
 
 import dao.Dao;
+import dao.Data;
 import data.*;
 /**
  * 启动应用
@@ -52,17 +55,36 @@ public class CMD100 implements ICMD {
 			ce.addReturnNum(today - firstDay);
 		}
 		int buys=device.getBuyState();
-		if(device.getOpen() ==0){	//新增用户
-			if(!channel.equals("苹果平台")){
+		//新增用户
+		if(device.getOpen() ==0){
+			//第二课免费分渠道，分奇偶
+			if(Arrays.asList(BaseData.getContent("第二课免费的渠道"+(device.getId()%2))
+					.split("#")).contains(channel)){
 				device.setBuyState(buys | 4);
+			}
+			//仅记录可获取红包的新增用户
+			if(Global.getInt(device.getVersion())>=4) {
+				Data rData=count.getRewardData();
+				rData.put("新增用户",rData.get("新增用户").asInt()+1);//新增用户+1
+				count.setReward(rData.asString());//保存
 			}
 			mc.setNewDevice(mc.getNewDevice() +1);
 			count.setNewDevice(count.getNewDevice() +1);
 			ce.setNewDevice(ce.getNewDevice() +1);
 		}
-		if((buys&(1<<21))==0 && Device.isBuyAll(buys)) {	//赠送第21课
+		//赠送第21课
+		if((buys&(1<<21))==0 && Device.isBuyAll(buys)) {
 			device.setBuyState(buys|(1<<21));
 		}
+		//第二课可以获取红包，就免费第二课
+		if(Global.getInt(device.getVersion())>=4 && (device.getBuyState()&4)==0) {
+			int type=Data.fromMap(BaseData.getContent("红包开关"))
+					.get(device.getId()%2).get("type").asInt();
+			if(type==0||type==2) {
+				device.setBuyState(buys|4);
+			}
+		}
+		
 		Dao.save(mc);
 		Dao.save(count);
 		Dao.save(ce);

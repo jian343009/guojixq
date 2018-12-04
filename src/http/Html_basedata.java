@@ -43,7 +43,8 @@ public class Html_basedata extends Html {
 				"                </tr>\n" + 
 				"            </thead>  \n" + 
 				"        </table>" +
-				"<table data-role=\"table\" id=\"table-column-toggle\" data-mode=\"column\" class=\"ui-responsive table-stroke\" border=\"1\">"+
+				"<table data-role=\"table\" id=\"table-column-toggle\" data-mode=\"column\""//表格固定宽度
+				+ " class=\"ui-responsive table-stroke\" border=\"1\" style=\"table-layout:fixed;\">"+
 				     "<thead>"+
 				     	"<tr>" 
 					+ "<th style=\"width:17px;\">ID</th>"
@@ -56,21 +57,6 @@ public class Html_basedata extends Html {
 			Collections.reverse(list);
 			for(int m=0;m<list.size();m++){
 				BaseData bd = list.get(m);
-				if("红包限制".equals(bd.getName())) {
-					String s2="",s3="";
-					if("多课".equals(bd.getContent())) {		s2 = "selected";
-					}else if("通用".equals(bd.getContent())) {	s3 = "selected";	}
-					body +="<tr>\n" 
-							+ "<td>"+bd.getId()+"</td>\n" 
-							+ "<td>"+bd.getName()+"</td>\n"
-							+ "<td><div style=\"width:130px;\"><select id=\"content"+bd.getId()+"\""
-									+ " onchange=\"updaterule('content','"+bd.getId()+"');\">\n" + 
-							"					<option value=\"关闭\">关闭</option>\n" + 
-							"					<option value=\"多课\" "+s2+">多课</option>\n" + 
-							"					<option value=\"通用\" "+s3+">通用</option>\n" + 
-							"			</select></div></td></tr>" ;
-					continue;
-				}
 				String idStr="content"+bd.getId();
 				body +=
 				"<tr>" +
@@ -82,21 +68,6 @@ public class Html_basedata extends Html {
 				+"', '"+bd.getId()+"');$(this).hide();\" data-role=\"button\""
 				+ " data-icon=\"check\" data-iconpos=\"notext\" data-theme=\"c\""
 				+ " data-inline=\"true\" style=\"display:none;\"></a></td>" ;
-//					for(int n=2;n<params.length;n++){
-//						try {
-//							Field fd = BaseData.class.getDeclaredField(params[n]);
-//							fd.setAccessible(true);
-//							String idStr = params[n]+bd.getId();
-//							body += "<td><textarea id=\""+idStr+"\" onchange=\"$('#btn"+idStr+"').show();\" >"
-//							+fd.get(bd)
-//							+"</textarea><a href=\"#\" id=\"btn"+idStr+"\" onclick=\"updaterule('"
-//									+params[n]+"', '"+bd.getId()+"');$(this).hide();\" data-role=\"button\""
-//								+ " data-icon=\"check\" data-iconpos=\"notext\" data-theme=\"c\""
-//								+ " data-inline=\"true\" style=\"display:none;\"></a></td>" ;
-//						} catch (Exception e) {
-//							e.printStackTrace();
-//						}
-//					}
 				body +=
 				"</tr>";
 			}

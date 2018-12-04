@@ -79,7 +79,9 @@ public class Html_heepay implements IHtml{
 				count.setTotalPay(count.getTotalPay() + money);
 				ce.setTotalPay(ce.getTotalPay() + money);
 				//价格比对+红包使用
-				Device.checkPrice(wd, lesson, (int)money, pay.getId());
+				Device.checkPrice(wd, lesson, (int)money);
+				//AB测试支付记录
+				Device.recordABpay(wd, (int)money, count, lesson);
 				if(map.get("pay_type").equals("30")){
 					mc.setWxPay(mc.getWxPay() + money);
 					count.setWxPay(count.getWxPay() + money);

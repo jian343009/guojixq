@@ -27,6 +27,9 @@
 		<property name="hwPay" type="java.lang.Double">
 		    <column name="hwPay" default="0"></column>
 		</property>
+		<property name="oppoPay" type="java.lang.Double">
+		    <column name="oppoPay" default="0"></column>
+		</property>
 		<property name="yesterday" type="java.lang.Integer">
 		    <column name="yesterday" default="0"></column>
 		</property>

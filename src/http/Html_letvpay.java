@@ -94,7 +94,9 @@ public class Html_letvpay extends Html{
 				ce.setTotalPay(ce.getTotalPay() + money);
 				count.setWiiPay(count.getWiiPay() + money);
 				//价格比对+红包使用
-				Device.checkPrice(wd, lesson, (int)money, pay.getId());
+				Device.checkPrice(wd, lesson, (int)money);
+				//AB测试支付记录
+				Device.recordABpay(wd, (int)money, count, lesson);
 				ce.setWiiPay(ce.getWiiPay() + money);
 				Dao.save(count);
 				Dao.save(ce);
