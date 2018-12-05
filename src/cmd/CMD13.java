@@ -82,11 +82,18 @@ public class CMD13 implements ICMD {
 		//获取红包信息
 		String sta1 = getStatus(device, 1);//更新红包状态，
 		String sta2 = getStatus(device, 2);//因为红包有效期
-		
+		int type=红包开关.get("type").asInt();
+		int reward1=devData.get(1).get("金额").asInt();
+		int reward2=devData.get(2).get("金额").asInt();
+		if(type==1) {//当红包生成只有第一课时，第二课红包金额为零
+			reward2=0;
+		}else if(type==2) {//当红包生成只有第二课时，第一课红包金额为零
+			reward1=0;
+		}
 		String msg = "<Rewards>\n" 
-			+ "<Reward lesson=\"1\" money=\"" + devData.get(1).get("金额").asInt()  
+			+ "<Reward lesson=\"1\" money=\"" + reward1
 				+ "\" status=\""+ sta1 + "\" time=\""+residueTime(device,1)+"\"/>\n" 
-			+ "<Reward lesson=\"2\" money=\"" + devData.get(2).get("金额").asInt() 
+			+ "<Reward lesson=\"2\" money=\"" + reward2
 				+ "\" status=\""+ sta2 + "\" time=\""+residueTime(device,2)+"\"/>\n" 
 			+ "<Reward type=\"" + 红包开关.get("type").asInt()+ "\" buyType=\""
 					+ 红包开关.get("buyType").asInt() + "\" />\n" 
@@ -135,11 +142,13 @@ public class CMD13 implements ICMD {
 		String status=reData.get(lesson).get("状态").asString();
 		if(Global.isEmpty(status)) {
 			status="未获取";//当前课程没有红包信息的情况
-		}else if("未使用".equals(status)&&"已过期".equals(residueTime(device, lesson))) {
-			reData.getMap(lesson).put("状态", "已过期");
-			device.setReward(reData.asString());
-			Dao.save(device);
-			status="已过期";
+		}else if("未使用".equals(status)) {
+			if("已过期".equals(residueTime(device, lesson))){
+				reData.getMap(lesson).put("状态", "已过期");
+				device.setReward(reData.asString());
+				Dao.save(device);
+				status="已过期";
+			}
 		}
 		return status;
 	}

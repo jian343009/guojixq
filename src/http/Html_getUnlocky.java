@@ -5,6 +5,7 @@ import java.util.logging.Logger;
 
 import cmd.CMD10;
 import dao.Dao;
+import data.BaseData;
 import data.Device;
 import main.Global;
 
@@ -25,7 +26,9 @@ public class Html_getUnlocky implements IHtml {
 		log.info("device="+device.getId()+",lesson="+lesson+",unlocky="+device.getUnlocky());
 		int pow = 1 << lesson;
 		boolean buy=(bought & pow) == pow && (device.getUnlockNum(lesson) <= 5);
-		if (buy || lesson==22) {// 是否购买
+		boolean 强制解锁=BaseData.getContent(BaseData.强制全部解锁)
+				.contains("#"+device.getChannel()+device.getVersion()+"#");
+		if (buy || lesson==22 || 强制解锁) {// 是否购买，22课免费
 			unlockMark = CMD10.next(unlockMark, lesson);
 			String code = unlockMark+"";
 			device.modUnlockNum(lesson, 1);

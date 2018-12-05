@@ -99,7 +99,7 @@ public class CMD10 implements ICMD {
 		String urlValue = e.getAttribute(url);
 		if (urlValue != null && urlValue.contains("/")) {
 			int cut = urlValue.lastIndexOf('/');
-			urlValue = urlValue.substring(0, cut) + "/down2.php?token=" + token + "&lesson=" + lesson;
+			urlValue = urlValue.substring(0, cut) + "/down.php?token=" + token + "&lesson=" + lesson;
 			e.setAttribute(url, urlValue);// 关键执行步骤
 		}
 	}

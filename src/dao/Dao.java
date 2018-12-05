@@ -299,7 +299,7 @@ public class Dao {
 			return null;//解决id和imei同时空的情况
 		}
 		Device device=null;
-		if(id>1 && dicIdDevice.containsKey(id)) {
+		if(id>=1 && dicIdDevice.containsKey(id)) {
 			device=dicIdDevice.get(id);
 			orderDevice(device);
 		}else if(!Global.isEmpty(imei) && dicImeiDevice.containsKey(imei)) {
@@ -308,7 +308,7 @@ public class Dao {
 		}else {
 			Session ss = HSF.getSession();
 			Criteria cr=ss.createCriteria(Device.class);
-			if(id>1) {
+			if(id>=1) {
 				cr.add(Restrictions.eq("id", id));
 			}else if(!Global.isEmpty(imei)) {
 				cr.add(Restrictions.eq("imei", imei));
@@ -402,6 +402,22 @@ public class Dao {
 		for(Device dev:listDevice) {
 			if(token.equals(dev.getToken())) {
 				device=dev;break;
+			}
+		}
+		if(device==null) {//当缓存中找不到用户的时候
+			Session s=HSF.getSession();
+			Criteria ct=s.createCriteria(Device.class).add(Restrictions.eq("token", token)).setMaxResults(1);
+			List<Device> list=ct.list();
+			s.close();
+			if(list.size()>=1) {
+				device=list.get(0);
+			}
+			if(device!=null) {//缓存中的token和数据库中的token不一至
+				for(Device dev:listDevice) {
+					if(device.getId()==dev.getId()) {
+						dev=device;break;
+					}
+				}
 			}
 		}
 		return device;

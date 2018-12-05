@@ -137,8 +137,12 @@ public class CMD14 implements ICMD {
 		int 红包 = 0;
 		Data rd = device.getRewardData();
 		if (canUseReward(device, lesson)) {
+			int type=CMD13.getRewardSwitch(device.getId()).get("type").asInt();
 			for (int les : new int[] { 1, 2 }) {
 				if ("未使用".equals(rd.get(les).get("状态").asString())) {
+					if(type!=0&&type!=les) {
+						continue;//type==3时直接进不了本代码
+					}
 					红包 += rd.get(les).get("金额").asInt();
 				}
 			}

@@ -83,6 +83,9 @@ public class Html_basedata extends Html {
 			BaseData br = BaseData.getByID(id);
 			if(id ==0 && conts.length >1 && conts[1].startsWith("name=")){
 				String name = conts[1].replace("name=", "");
+				if(Global.isEmpty(name)) {
+					return "name不能为空";
+				}
 				BaseData bd = BaseData.getByName(name);
 				if(bd == null){
 					bd = new BaseData();
