@@ -29,18 +29,19 @@ public class CMD14 implements ICMD {
 		int devID = data.readInt();
 		int lesson = data.readInt();
 		if(lesson==21) {//赠送21课
-			reBuf(buf, 2, "本课为习题集，共24类200题，不能独立购买，购买前面20课，将自动赠送本课。");
+			return reBuf(buf, 2, "本课为习题集，共24类200题，不能独立购买，购买前面20课，将自动赠送本课。");
 		}
 		Device device = Dao.getDeviceExist(devID, null);
 		if (device == null) {
-			reBuf(buf, 2, "没找到该用户");
+			return reBuf(buf, 2, "没找到该用户");
 		}
-		int pow = 1 << lesson, buys = device.getBuyState();
+		int buys = device.getBuyState();
+		int pow = 1 << lesson;
 		if (lesson == 0 && Device.isBuyAll(buys)) {
-			reBuf(buf, 3, "您已经购买全部课程，\n请退出重新打开软件。");
+			return reBuf(buf, 3, "您已经购买全部课程，\n请退出重新打开软件。");
 		}
 		if (lesson != 0 && (buys & pow) == pow) {
-			reBuf(buf, 3, "该课程已购买。\n请点击\"我已购买\"按钮。");
+			return reBuf(buf, 3, "该课程已购买。\n请点击\"我已购买\"按钮。");
 		}
 		String channel = getChannel(device);
 

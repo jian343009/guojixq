@@ -11,8 +11,10 @@ public class Test {
 	private static final Logger log = Logger.getLogger("Test");
 
 	public static void main(String[] args) throws UnsupportedEncodingException {
-		
-		show(ServerTimer.getFullWithS());
+		String str ="1111";
+		String before=str.toString();
+		str="222";
+		show(before);
 	}
 
 	public static void show(Object obj){

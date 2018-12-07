@@ -86,9 +86,9 @@ public class CMD13 implements ICMD {
 		int reward1=devData.get(1).get("金额").asInt();
 		int reward2=devData.get(2).get("金额").asInt();
 		if(type==1) {//当红包生成只有第一课时，第二课红包金额为零
-			reward2=0;
+			reward2=0; sta2="已过期";
 		}else if(type==2) {//当红包生成只有第二课时，第一课红包金额为零
-			reward1=0;
+			reward1=0; sta1="已过期";
 		}
 		String msg = "<Rewards>\n" 
 			+ "<Reward lesson=\"1\" money=\"" + reward1

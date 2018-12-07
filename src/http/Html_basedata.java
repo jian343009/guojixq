@@ -2,6 +2,7 @@ package http;
 
 import java.lang.reflect.Field;
 import java.net.URLDecoder;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.logging.*;
@@ -22,7 +23,13 @@ public class Html_basedata extends Html {
 		if(content.isEmpty()){
 			//String[] params = "id,name,content".split(","); 
 			String body = 
-			"<script type=\"text/javascript\">"+
+			"<style>"
+			+ ""
+			+ ""
+			+ ""
+			+ "</style>"+ 
+			"<script type=\"text/javascript\">"
+			+
 				"function updaterule(column, id){" +
 					"var value = $('#'+column+id).val();" +
 					"value = encodeURIComponent(value);" +
@@ -51,23 +58,35 @@ public class Html_basedata extends Html {
 					+ "<th style=\"width:99px;\">name</th>"
 					+ "<th>content</th>"
 				       +"</tr>"+
-				     "</thead>"+
+				     "</thead>\n"+
 				     "<tbody>";
 			List<BaseData> list = BaseData.getAllBaseData();
 			Collections.reverse(list);
 			for(int m=0;m<list.size();m++){
 				BaseData bd = list.get(m);
 				String idStr="content"+bd.getId();
+				List<String> without=Arrays.asList(new String[]{"华为平台","苹果平台","乐视电视","其它平台","oppo联运"});
+				if(without.contains(bd.getName())) {
+					continue;//渠道价格信息排除
+				}
+				String rows="";
+				if(Global.isEmpty(bd.getContent()) && bd.getContent().length()>=99) {
+					rows="style=\"height:30px;\"";
+				}
 				body +=
 				"<tr>" +
-				"<td>"+bd.getId()+"</td>" +
-				"<td>"+bd.getName()+"</td>" +
-				"<td><textarea id=\""+idStr+"\" onchange=\"$('#btn"+idStr+"').show();\" >"
+				"<td>"+bd.getId()+"</td>\n" +
+				"<td>"+bd.getName()+"</td>\n" +
+				"<td>"
+				+ "<div"+rows+">"
+				+ "<textarea "+rows+" id=\""+idStr+"\" onchange=\"$('#btn"+idStr+"').show();\" >\n"
 				+bd.getContent()
 				+"</textarea><a href=\"#\"  id=\"btn"+idStr+"\" onclick=\"updaterule('content"
 				+"', '"+bd.getId()+"');$(this).hide();\" data-role=\"button\""
 				+ " data-icon=\"check\" data-iconpos=\"notext\" data-theme=\"c\""
-				+ " data-inline=\"true\" style=\"display:none;\"></a></td>" ;
+				+ " data-inline=\"true\" style=\"display:none;\"></a>"
+				+ "</div>"
+				+ "</td>\n" ;
 				body +=
 				"</tr>";
 			}

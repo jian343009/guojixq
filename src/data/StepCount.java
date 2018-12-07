@@ -7,10 +7,8 @@ import org.hibernate.Session;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 
-import dao.Dao;
 import dao.Data;
 import dao.HSF;
-import main.Global;
 import main.ServerTimer;
 
 public class StepCount extends Database {
@@ -58,20 +56,7 @@ public class StepCount extends Database {
 		}
 		return this.data;
 	}
-	public StepCount add打开设备(){
-		int num = this.getData().get("打开设备").asInt() +1;
-		this.getData().put("打开设备", num);
-		int num2 = this.getData().get("打开设备时段").get(ServerTimer.getHour()).asInt() +1;
-		this.getData().getList("打开设备时段").set(ServerTimer.getHour(), num2);
-		this.detail = this.getData().toString();
-		return this;
-	}
-	public StepCount add新增设备(){
-		int num = this.getData().get("新增设备").asInt() +1;
-		this.getData().put("新增设备", num);
-		this.detail = this.getData().toString();
-		return this;
-	}
+
 	public StepCount add支付统计(String step){
 		int num = this.getData().get(step).asInt() +1;
 		this.getData().put(step, num);
@@ -84,23 +69,7 @@ public class StepCount extends Database {
 		this.detail = this.getData().toString();
 		return this;
 	}
-	/**
-	 * 7版以上的看完第一课的人数分奇偶统计
-	 * {1:{"完成学习":4,7:[1,3]}}
-	 */
-	public StepCount add看完1课(int device){
-		int dev = device % 2;
-		Data data = this.getData().getMap(1).getList("7版");
-		data.set(dev, data.get(dev).asInt()+1);
-		this.detail = this.getData().toString();
-		return this;
-	}
-	public StepCount add退出原因(String step){
-		Data data = this.getData().getMap("退出原因");
-		data.put(step, data.get(step).asInt()+1);
-		this.detail = this.getData().toString();
-		return this;
-	}
+
 	private static Hashtable<String, StepCount> dicStepCount = new Hashtable<String, StepCount>();
 	public static StepCount getByChannelToday(String channel){
 		if(!channel.equals("华为平台")){

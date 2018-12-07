@@ -108,8 +108,8 @@ public class Manager extends SimpleChannelUpstreamHandler implements TimerTask {
 					e1.printStackTrace();
 				}
 			}
-			logger.warn("url:"+url+",content:"+content);
-			
+			//logger.warn("url:"+url+",content:"+content);
+			String urlBefore=url.toString();
 			IHtml h = new Html();
 			String hl = h.getHtml(content);
 			if(url.equals("/record")){
@@ -154,7 +154,7 @@ public class Manager extends SimpleChannelUpstreamHandler implements TimerTask {
 				hl = new Html_channelAndPrice().getHtml(content);
 				Global.addRecord(0, "",url, content);
 			}
-			logger.warn("url:"+url+",length:"+hl.length());
+			logger.warn("url_1="+urlBefore+",url_2:"+url+",length:"+hl.length()+",content="+content);
 			buffer.writeBytes(hl.getBytes(Charset.forName("utf-8")));
 		}
 		
