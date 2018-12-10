@@ -26,6 +26,9 @@ public class CMD100 implements ICMD {
 		String version = Global.readUTF(data);
 		Global.addRecord(deviceID, imei, "CMD100启动", channel+version);
 		Device device = Dao.getDevice(deviceID, imei, "CMD100");
+		if(!Global.isEmpty(imei) && !imei.equals(device.getImei())) {
+			device.setImei(imei);//更新imei，双卡或重装的情况
+		}
 		//channel带token的时候
 		if(!Global.isEmpty(channel) && channel.contains("#")){
 			String token=channel.split("#")[1];
